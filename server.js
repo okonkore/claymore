@@ -10,6 +10,13 @@ const client = redis.createClient({
     url: 'redis://localhost:6379', // Redisサーバーがローカルの場合
 });
 
+try {
+    await client.connect();
+    console.log('Connected to Redis');
+} catch (err) {
+    console.error('Redis connection error:', err);
+}
+
 // QRコード生成用のエンドポイント
 app.get('/qrcode', async (req, res) => {
   try {
