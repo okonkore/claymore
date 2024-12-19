@@ -33,15 +33,32 @@ git --version
 
 ---
 
-### **3. Node.js と npm のセットアップ**
-Node.js をインストールして、サーバーサイドの環境を構築。
-```bash
-sudo yum install -y gcc-c++ make
-curl -sL https://rpm.nodesource.com/setup_18.x | sudo bash -
-sudo yum install -y nodejs
-node -v
-npm -v
-```
+### **3. Node.js と npm のセットアップ（nvm 使用）**
+nvm（Node Version Manager）を使用して Node.js をインストール。
+
+#### **手順**
+1. **nvm をインストール**:
+   ```bash
+   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+   ```
+
+2. **nvm を有効化**:
+   ```bash
+   export NVM_DIR="$HOME/.nvm"
+   [ -s "$NVM_DIR/nvm.sh" ] && \ . "$NVM_DIR/nvm.sh"
+   [ -s "$NVM_DIR/bash_completion" ] && \ . "$NVM_DIR/bash_completion"
+   ```
+
+3. **Node.js をインストール**:
+   ```bash
+   nvm install --lts
+   ```
+
+4. **インストール確認**:
+   ```bash
+   node -v
+   npm -v
+   ```
 
 ---
 
