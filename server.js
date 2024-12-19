@@ -1,6 +1,7 @@
 const express = require('express');
 const QRCode = require('qrcode');
 const redis = require('redis');
+const path = require('path');
 
 const app = express();
 const port = 8080; // サーバーのポート番号
@@ -38,8 +39,16 @@ app.get('/qrcode', async (req, res) => {
     const qrCodeDataUrl = await QRCode.toDataURL(queryUrl);
 
     // QRコードをブラウザに表示
-    res.setHeader('Content-Type', 'text/html');
-    res.send(`<img src="${qrCodeDataUrl}" alt="QR Code"><p>URL: ${queryUrl}</p>`);
+    const filePath = path.join(__dirname, 'qrcode.html');
+    res.sendFile(filePath, {
+      headers: {
+        'Content-Type': 'text/html'
+      },
+      query: {
+        qrCodeDataUrl,
+        url: queryUrl
+      }
+    });
   } catch (error) {
     console.error('QR Code generation error:', error);
     res.status(500).send('Error generating QR Code.');
