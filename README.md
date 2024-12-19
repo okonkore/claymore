@@ -39,22 +39,16 @@ nvm（Node Version Manager）を使用して Node.js をインストール。
 #### **手順**
 1. **nvm をインストール**:
    ```bash
-   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash source ~/.bashrc
    ```
 
-2. **nvm を有効化**:
-   ```bash
-   export NVM_DIR="$HOME/.nvm"
-   [ -s "$NVM_DIR/nvm.sh" ] && \ . "$NVM_DIR/nvm.sh"
-   [ -s "$NVM_DIR/bash_completion" ] && \ . "$NVM_DIR/bash_completion"
-   ```
-
-3. **Node.js をインストール**:
+2. **Node.js をインストール**:
    ```bash
    nvm install --lts
+   nvm use --lts
    ```
 
-4. **インストール確認**:
+3. **インストール確認**:
    ```bash
    node -v
    npm -v
