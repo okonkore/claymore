@@ -1,8 +1,14 @@
 const express = require('express');
 const QRCode = require('qrcode');
+const redis = require('redis');
 
 const app = express();
 const port = 8080; // サーバーのポート番号
+
+// Redisクライアントの設定
+const client = redis.createClient({
+    url: 'redis://localhost:6379', // Redisサーバーがローカルの場合
+});
 
 // QRコード生成用のエンドポイント
 app.get('/qrcode', async (req, res) => {
@@ -15,10 +21,9 @@ app.get('/qrcode', async (req, res) => {
       return res.status(400).send('Error: Missing "url" query parameter.');
     }
 
-    // 自身のホスト名を取得して完全なURLを生成
-    const fullUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
-    console.log(`Requested QR Code for URL: ${queryUrl}`);
-    console.log(`Full server URL: ${fullUrl}`);
+    // URLをRedisに保存（key: "url"）
+    await client.set('url', queryUrl);
+    console.log(`Saved URL to Redis: ${queryUrl}`);
 
     // QRコードを生成
     const qrCodeDataUrl = await QRCode.toDataURL(queryUrl);
