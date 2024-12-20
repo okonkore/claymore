@@ -6,6 +6,8 @@ const path = require('path');
 const app = express();
 const port = 8080; // サーバーのポート番号
 
+app.use(express.static('public'));
+
 // Redisクライアントの設定
 const client = redis.createClient({
     url: 'redis://localhost:6379', // Redisサーバーがローカルの場合
