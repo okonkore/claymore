@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "cookie-parser": "^1.4.7",
     "express": "^4.21.2",
     "qrcode": "^1.5.4",
     "redis": "^4.7.0",

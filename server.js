@@ -2,13 +2,16 @@ const express = require('express');
 const QRCode = require('qrcode');
 const redis = require('redis');
 const path = require('path');
+const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
+const { cookie } = require('express/lib/response');
 
 const app = express();
 const port = 8080; // サーバーのポート番号
 
 app.use(express.static('public'));
+app.use(cookieParser());
 app.use(bodyParser.json());
 
 // Redisクライアントの設定
