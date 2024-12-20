@@ -19,7 +19,7 @@ const client = redis.createClient({
 })();
 
 // ユーザー情報取得エンドポイント
-app.get('/', async (req, res) => {
+router.get('/', async (req, res) => {
     const sessionId = req.cookies.session_id;
 
     if (!sessionId) {
@@ -43,7 +43,7 @@ app.get('/', async (req, res) => {
 });
 
 // ユーザー登録エンドポイント
-app.post('/', async (req, res) => {
+router.post('/', async (req, res) => {
     const { name } = req.body;
   
     if (!name) {
