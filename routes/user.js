@@ -67,5 +67,23 @@ router.post('/', async (req, res) => {
     res.status(200).json({ message: "Registration successful" });
   });
 
-
+// Handle logout
+router.delete('/user', async (req, res) => {
+    try {
+      // Assuming session_id is stored in a cookie
+      const sessionId = req.cookies.session_id;
+  
+      if (sessionId) {
+        await client.del(sessionId); // Delete session data from Redis
+        res.clearCookie('session_id'); // Clear the session_id cookie
+        res.sendStatus(200);
+      } else {
+        res.sendStatus(400);
+      }
+    } catch (error) {
+      console.error('Error logging out:', error);
+      res.sendStatus(500);
+    }
+  });
+  
 module.exports = router;
