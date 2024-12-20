@@ -1,22 +1,7 @@
 const express = require('express');
-const redis = require('redis');
 const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
-const app = express();
-
-// Redisクライアントの設定
-const client = redis.createClient({
-    url: 'redis://localhost:6379', // Redisサーバーがローカルの場合
-});
-
-(async () => {
-    try {
-      await client.connect(); // Redisに接続
-      console.log('Connected to Redis');
-    } catch (err) {
-      console.error('Redis connection error:', err);
-    }
-})();
+const client = require('../services/redisClient'); // Redisクライアントをインポート
 
 // ユーザー情報取得エンドポイント
 router.get('/', async (req, res) => {
@@ -65,17 +50,17 @@ router.post('/', async (req, res) => {
   
     // 登録成功
     res.status(200).json({ message: "Registration successful" });
-  });
+});
 
-// Handle logout
+// ログアウト処理
 router.delete('/', async (req, res) => {
     try {
-      // Assuming session_id is stored in a cookie
+      // クッキーから session_id を取得
       const sessionId = req.cookies.session_id;
   
       if (sessionId) {
-        await client.del(sessionId); // Delete session data from Redis
-        res.clearCookie('session_id'); // Clear the session_id cookie
+        await client.del(sessionId); // Redisからセッションデータを削除
+        res.clearCookie('session_id', { path: '/' }); // session_idクッキーをクリア
         res.sendStatus(200);
       } else {
         res.sendStatus(400);
@@ -84,6 +69,6 @@ router.delete('/', async (req, res) => {
       console.error('Error logging out:', error);
       res.sendStatus(500);
     }
-  });
+});
 
 module.exports = router;

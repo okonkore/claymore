@@ -1,10 +1,10 @@
 const express = require('express');
 const QRCode = require('qrcode');
-const redis = require('redis');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const { cookie } = require('express/lib/response');
+const client = require('./services/redisClient'); // Redisクライアントをインポート
 
 const app = express();
 const port = 8080; // サーバーのポート番号
@@ -15,20 +15,6 @@ app.use(bodyParser.json());
 
 const userRoutes = require('./routes/user');
 app.use('/user', userRoutes);
-
-// Redisクライアントの設定
-const client = redis.createClient({
-    url: 'redis://localhost:6379', // Redisサーバーがローカルの場合
-});
-
-(async () => {
-    try {
-      await client.connect(); // Redisに接続
-      console.log('Connected to Redis');
-    } catch (err) {
-      console.error('Redis connection error:', err);
-    }
-})();
 
 // QRコード生成用のエンドポイント
 app.get('/qrcode', async (req, res) => {
