@@ -2,7 +2,7 @@ const express = require('express');
 const redis = require('redis');
 const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
-
+const app = express();
 
 // Redisクライアントの設定
 const client = redis.createClient({
