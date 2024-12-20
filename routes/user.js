@@ -68,7 +68,7 @@ router.post('/', async (req, res) => {
   });
 
 // Handle logout
-router.delete('/user', async (req, res) => {
+router.delete('/', async (req, res) => {
     try {
       // Assuming session_id is stored in a cookie
       const sessionId = req.cookies.session_id;
@@ -85,5 +85,5 @@ router.delete('/user', async (req, res) => {
       res.sendStatus(500);
     }
   });
-  
+
 module.exports = router;
