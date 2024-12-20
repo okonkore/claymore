@@ -59,7 +59,7 @@ router.post('/', async (req, res) => {
     });
   
     // session_id をクッキーに設定（有効期限: 1時間）
-    res.cookie('session_id', sessionId, { httpOnly: true, maxAge: 3600000, path: '/' });
+    res.cookie('session_id', sessionId, { maxAge: 3600000, path: '/' });
   
     console.log(`User registered with name: ${name}, session_id: ${sessionId}`);
   
