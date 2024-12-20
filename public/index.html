@@ -68,10 +68,8 @@
                     }
                 });
             } else {
-                // session_id が存在する場合、既に登録済みとしてメッセージを表示
-                const welcomeMessage = document.createElement("p");
-                welcomeMessage.textContent = "You are already registered.";
-                document.body.appendChild(welcomeMessage);
+                // session_id が存在する場合、home.html へ遷移
+                window.location.href = "/home.html";
             }
         });
     </script>
