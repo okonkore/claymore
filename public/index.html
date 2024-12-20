@@ -1,5 +1,79 @@
-<html>
-    <body>
-        <h1>ログイン</h1>
-    </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <style>
+        #register-form {
+            display: none; /* 初期状態では非表示 */
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome</h1>
+
+    <!-- 名前入力と登録ボタン -->
+    <div id="register-form">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        <button id="register-button">Register</button>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // クッキーを取得
+            function getCookie(name) {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return parts.pop().split(';').shift();
+            }
+
+            // session_id をチェック
+            const sessionId = getCookie("session_id");
+
+            if (!sessionId) {
+                // session_id が無い場合、登録フォームを表示
+                document.getElementById("register-form").style.display = "block";
+
+                // 登録ボタンのイベントリスナーを設定
+                document.getElementById("register-button").addEventListener("click", async function () {
+                    const name = document.getElementById("name").value;
+
+                    if (!name) {
+                        alert("Name is required.");
+                        return;
+                    }
+
+                    try {
+                        // /user API に登録リクエストを送信
+                        const response = await fetch("/user", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({ name }),
+                        });
+
+                        if (response.ok) {
+                            // 登録成功時に home.html へ遷移
+                            window.location.href = "/home.html";
+                        } else {
+                            const errorData = await response.json();
+                            alert(`Registration failed: ${errorData.message}`);
+                        }
+                    } catch (error) {
+                        console.error("Error:", error);
+                        alert("An error occurred during registration.");
+                    }
+                });
+            } else {
+                // session_id が存在する場合、既に登録済みとしてメッセージを表示
+                const welcomeMessage = document.createElement("p");
+                welcomeMessage.textContent = "You are already registered.";
+                document.body.appendChild(welcomeMessage);
+            }
+        });
+    </script>
+</body>
 </html>
