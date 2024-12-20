@@ -61,7 +61,7 @@ app.get('/qrcode', async (req, res) => {
 });
 
 // ユーザー登録エンドポイント
-app.post('/user', (req, res) => {
+app.post('/user', async (req, res) => {
   const { name } = req.body;
 
   if (!name) {
@@ -71,6 +71,11 @@ app.post('/user', (req, res) => {
   // 新しい session_id を生成
   const sessionId = uuidv4();
 
+  // ユーザー情報を Redis に保存（有効期限: 1時間）
+  await client.set(sessionId, JSON.stringify({ name }), {
+    EX: 3600, // 1時間
+  });
+
   // session_id をクッキーに設定（有効期限: 1時間）
   res.cookie('session_id', sessionId, { httpOnly: true, maxAge: 3600000 });
 
@@ -78,6 +83,30 @@ app.post('/user', (req, res) => {
 
   // 登録成功
   res.status(200).json({ message: "Registration successful" });
+});
+
+// ユーザー情報取得エンドポイント
+app.get('/user', async (req, res) => {
+    const sessionId = req.cookies.session_id;
+
+    if (!sessionId) {
+        return res.status(401).json({ message: "Session not found" });
+    }
+
+    try {
+        // Redis からユーザー情報を取得
+        const userData = await redisClient.get(sessionId);
+
+        if (!userData) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // ユーザー情報をレスポンス
+        res.status(200).json(JSON.parse(userData));
+    } catch (error) {
+        console.error("Error retrieving user data from Redis:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
 });
 
 // サーバー起動
