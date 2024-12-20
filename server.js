@@ -98,7 +98,7 @@ app.get('/user', async (req, res) => {
 
     try {
         // Redis からユーザー情報を取得
-        const userData = await redisClient.get(sessionId);
+        const userData = await client.get(sessionId);
 
         if (!userData) {
             return res.status(404).json({ message: "User not found" });
