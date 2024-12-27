@@ -131,7 +131,7 @@
         minor7b5: [0, 3, 6, 10] // Root, Minor third, Diminished fifth, Minor seventh
     };
 
-    function playChord(frequencies) {
+    function playChord(frequencies, intervalSet) {
         frequencies.forEach((frequency, index) => {
             let oscillator = oscillators[index];
             if (!oscillator) {
@@ -141,7 +141,7 @@
                 oscillators[index] = oscillator;
             }
             oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-            oscillator.detune.setValueAtTime((index - frequencies.length / 2) * 10, audioContext.currentTime); // Add detune for thickness
+            oscillator.detune.setValueAtTime((index - intervalSet.length / 2) * 10, audioContext.currentTime); // Add detune for thickness
 
             // Create an envelope
             gainNode.gain.setValueAtTime(0, audioContext.currentTime);
@@ -168,19 +168,24 @@
         return selected;
     }
 
-    function getFrequencies(rootFrequency) {
-        const chordType = getSelectedChordType();
+    function getFrequencies(rootFrequency, chordType) {
         let intervalSet;
 
         switch (chordType) {
-            case 'single':
-                intervalSet = intervals.major.slice(0, 1);
-                break;
-            case 'two':
-                intervalSet = intervals.major.slice(0, 2);
-                break;
-            case 'full':
+            case 'major':
                 intervalSet = intervals.major;
+                break;
+            case 'minor':
+                intervalSet = intervals.minor;
+                break;
+            case 'major7':
+                intervalSet = intervals.major7;
+                break;
+            case 'minor7':
+                intervalSet = intervals.minor7;
+                break;
+            case 'minor7b5':
+                intervalSet = intervals.minor7b5;
                 break;
             default:
                 intervalSet = intervals.major;
@@ -213,7 +218,17 @@
 
     Object.keys(notes).forEach(id => {
         const button = document.getElementById(id);
-        button.addEventListener('mousedown', () => playChord(getFrequencies(notes[id][0])));
+        button.addEventListener('mousedown', () => {
+            let chordType;
+            if (id.includes('M7b5')) {
+                chordType = 'minor7b5';
+            } else if (id.includes('M7')) {
+                chordType = 'minor7';
+            } else {
+                chordType = 'major';
+            }
+            playChord(getFrequencies(notes[id][0], chordType), intervals[chordType]);
+        });
         button.addEventListener('mouseup', stopChord);
         button.addEventListener('mouseleave', stopChord);
     });
