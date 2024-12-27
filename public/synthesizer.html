@@ -76,7 +76,8 @@
 <script>
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     let oscillators = [];
-    let gainNode;
+    let gainNode = audioContext.createGain();
+    gainNode.connect(audioContext.destination);
     let lastRootFrequency = null;
 
     const notes = {
@@ -127,15 +128,16 @@
     };
 
     function playChord(frequencies) {
-        gainNode = audioContext.createGain();
-        gainNode.connect(audioContext.destination);
-
         frequencies.forEach((frequency, index) => {
-            const oscillator = audioContext.createOscillator();
-            oscillator.type = 'triangle'; // Change the type of the oscillator to triangle for a more bell-like sound
+            let oscillator = oscillators[index];
+            if (!oscillator) {
+                oscillator = audioContext.createOscillator();
+                oscillator.type = 'triangle'; // Change the type of the oscillator to triangle for a more bell-like sound
+                oscillator.connect(gainNode);
+                oscillators[index] = oscillator;
+            }
             oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
             oscillator.detune.setValueAtTime((index - frequencies.length / 2) * 10, audioContext.currentTime); // Add detune for thickness
-            oscillator.connect(gainNode);
 
             // Create an envelope
             gainNode.gain.setValueAtTime(0, audioContext.currentTime);
@@ -144,9 +146,8 @@
             gainNode.gain.setValueAtTime(0.3, audioContext.currentTime + 0.2); // Sustain
             gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 1); // Release
 
-            oscillator.start();
+            oscillator.start(audioContext.currentTime);
             oscillator.stop(audioContext.currentTime + 1); // Stop the oscillator after the release phase
-            oscillators.push(oscillator);
         });
     }
 
