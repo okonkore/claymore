@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Circle of Fifths Synthesizer</title>
+    <style>
+        .circle-of-fifths {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        .circle-of-fifths button {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            font-size: 16px;
+            text-align: center;
+            line-height: 60px;
+            cursor: grab;
+        }
+        .circle-of-fifths button:active {
+            cursor: grabbing;
+        }
+    </style>
+</head>
+<body>
+<div>
+    <label><input type="radio" name="chordType" value="single" checked> 短音</label>
+    <label><input type="radio" name="chordType" value="two"> 2和音</label>
+    <label><input type="radio" name="chordType" value="full"> フルの和音</label>
+</div>
+<div class="circle-of-fifths" id="circleOfFifths">
+    <!-- Major chords -->
+    <button id="playDb" draggable="true" style="left: 50px; top: 50px;">D♭</button>
+    <button id="playAb" draggable="true" style="left: 150px; top: 50px;">A♭</button>
+    <button id="playEb" draggable="true" style="left: 250px; top: 50px;">E♭</button>
+    <button id="playBb" draggable="true" style="left: 350px; top: 50px;">B♭</button>
+    <button id="playF" draggable="true" style="left: 450px; top: 50px;">F</button>
+    <button id="playC" draggable="true" style="left: 550px; top: 50px;">C</button>
+    <button id="playG" draggable="true" style="left: 650px; top: 50px;">G</button>
+    <button id="playD" draggable="true" style="left: 750px; top: 50px;">D</button>
+    <button id="playA" draggable="true" style="left: 850px; top: 50px;">A</button>
+    <button id="playE" draggable="true" style="left: 950px; top: 50px;">E</button>
+    <button id="playB" draggable="true" style="left: 1050px; top: 50px;">B</button>
+    <button id="playFSharp" draggable="true" style="left: 1150px; top: 50px;">F#</button>
+    <!-- Minor seventh chords -->
+    <button id="playBbM7" draggable="true" style="left: 50px; top: 150px;">B♭m7</button>
+    <button id="playFm7" draggable="true" style="left: 150px; top: 150px;">Fm7</button>
+    <button id="playCm7" draggable="true" style="left: 250px; top: 150px;">Cm7</button>
+    <button id="playGm7" draggable="true" style="left: 350px; top: 150px;">Gm7</button>
+    <button id="playDm7" draggable="true" style="left: 450px; top: 150px;">Dm7</button>
+    <button id="playAm7" draggable="true" style="left: 550px; top: 150px;">Am7</button>
+    <button id="playEm7" draggable="true" style="left: 650px; top: 150px;">Em7</button>
+    <button id="playBm7" draggable="true" style="left: 750px; top: 150px;">Bm7</button>
+    <button id="playFSharpM7" draggable="true" style="left: 850px; top: 150px;">F#m7</button>
+    <button id="playCSharpM7" draggable="true" style="left: 950px; top: 150px;">C#m7</button>
+    <button id="playGSharpM7" draggable="true" style="left: 1050px; top: 150px;">G#m7</button>
+    <button id="playDSharpM7" draggable="true" style="left: 1150px; top: 150px;">D#m7</button>
+    <!-- Minor seventh flat five chords -->
+    <button id="playCm7b5" draggable="true" style="left: 50px; top: 250px;">Cm7♭5</button>
+    <button id="playGm7b5" draggable="true" style="left: 150px; top: 250px;">Gm7♭5</button>
+    <button id="playDm7b5" draggable="true" style="left: 250px; top: 250px;">Dm7♭5</button>
+    <button id="playAm7b5" draggable="true" style="left: 350px; top: 250px;">Am7♭5</button>
+    <button id="playEm7b5" draggable="true" style="left: 450px; top: 250px;">Em7♭5</button>
+    <button id="playBm7b5" draggable="true" style="left: 550px; top: 250px;">Bm7♭5</button>
+    <button id="playFSharpM7b5" draggable="true" style="left: 650px; top: 250px;">F#m7♭5</button>
+    <button id="playCSharpM7b5" draggable="true" style="left: 750px; top: 250px;">C#m7♭5</button>
+    <button id="playGSharpM7b5" draggable="true" style="left: 850px; top: 250px;">G#m7♭5</button>
+    <button id="playDSharpM7b5" draggable="true" style="left: 950px; top: 250px;">D#m7♭5</button>
+    <button id="playASharpM7b5" draggable="true" style="left: 1050px; top: 250px;">A#m7♭5</button>
+    <button id="playFm7b5" draggable="true" style="left: 1150px; top: 250px;">Fm7♭5</button>
+</div>
+
+<script>
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    let oscillators = [];
+    let gainNode;
+    let lastRootFrequency = null;
+
+    const notes = {
+        playDb: [277.18], // D♭
+        playAb: [415.30], // A♭
+        playEb: [311.13], // E♭
+        playBb: [466.16], // B♭
+        playF: [349.23], // F
+        playC: [261.63], // C
+        playG: [392.00], // G
+        playD: [293.66], // D
+        playA: [440.00], // A
+        playE: [329.63], // E
+        playB: [493.88], // B
+        playFSharp: [369.99], // F#
+        playBbM7: [466.16], // B♭m7
+        playFm7: [349.23], // Fm7
+        playCm7: [261.63], // Cm7
+        playGm7: [392.00], // Gm7
+        playDm7: [293.66], // Dm7
+        playAm7: [440.00], // Am7
+        playEm7: [329.63], // Em7
+        playBm7: [493.88], // Bm7
+        playFSharpM7: [369.99], // F#m7
+        playCSharpM7: [277.18], // C#m7
+        playGSharpM7: [415.30], // G#m7
+        playDSharpM7: [311.13], // D#m7
+        playCm7b5: [261.63], // Cm7♭5
+        playGm7b5: [392.00], // Gm7♭5
+        playDm7b5: [293.66], // Dm7♭5
+        playAm7b5: [440.00], // Am7♭5
+        playEm7b5: [329.63], // Em7♭5
+        playBm7b5: [493.88], // Bm7♭5
+        playFSharpM7b5: [369.99], // F#m7♭5
+        playCSharpM7b5: [277.18], // C#m7♭5
+        playGSharpM7b5: [415.30], // G#m7♭5
+        playDSharpM7b5: [311.13], // D#m7♭5
+        playASharpM7b5: [466.16], // A#m7♭5
+        playFm7b5: [349.23] // Fm7♭5
+    };
+
+    const intervals = {
+        major: [0, 4, 7], // Root, Major third, Perfect fifth
+        minor: [0, 3, 7], // Root, Minor third, Perfect fifth
+        major7: [0, 4, 7, 11], // Root, Major third, Perfect fifth, Major seventh
+        minor7: [0, 3, 7, 10], // Root, Minor third, Perfect fifth, Minor seventh
+        minor7b5: [0, 3, 6, 10] // Root, Minor third, Diminished fifth, Minor seventh
+    };
+
+    function playChord(frequencies) {
+        gainNode = audioContext.createGain();
+        gainNode.connect(audioContext.destination);
+
+        frequencies.forEach((frequency, index) => {
+            const oscillator = audioContext.createOscillator();
+            oscillator.type = 'triangle'; // Change the type of the oscillator to triangle for a more bell-like sound
+            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+            oscillator.detune.setValueAtTime((index - frequencies.length / 2) * 10, audioContext.currentTime); // Add detune for thickness
+            oscillator.connect(gainNode);
+
+            // Create an envelope
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.6, audioContext.currentTime + 0.05); // Attack
+            gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.1); // Decay
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime + 0.2); // Sustain
+            gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 1); // Release
+
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + 1); // Stop the oscillator after the release phase
+            oscillators.push(oscillator);
+        });
+    }
+
+    function stopChord() {
+        oscillators.forEach(oscillator => {
+            oscillator.stop();
+            oscillator.disconnect();
+        });
+        oscillators = [];
+    }
+
+    function getSelectedChordType() {
+        const selected = document.querySelector('input[name="chordType"]:checked').value;
+        return selected;
+    }
+
+    function getFrequencies(rootFrequency) {
+        const chordType = getSelectedChordType();
+        let intervalSet;
+
+        switch (chordType) {
+            case 'single':
+                intervalSet = intervals.major.slice(0, 1);
+                break;
+            case 'two':
+                intervalSet = intervals.major.slice(0, 2);
+                break;
+            case 'full':
+                intervalSet = intervals.major;
+                break;
+            default:
+                intervalSet = intervals.major;
+        }
+
+        const adjustedRootFrequency = adjustOctave(rootFrequency, rootFrequency);
+        return intervalSet.map(interval => adjustedRootFrequency * Math.pow(2, interval / 12));
+    }
+
+    function adjustOctave(frequency, rootFrequency) {
+        if (lastRootFrequency === null) {
+            lastRootFrequency = rootFrequency;
+            return frequency;
+        }
+
+        const lastMidiNote = Math.round(12 * Math.log2(lastRootFrequency / 440) + 69);
+        const currentMidiNote = Math.round(12 * Math.log2(frequency / 440) + 69);
+        const octaveDifference = currentMidiNote - lastMidiNote;
+        console.log(octaveDifference, currentMidiNote, lastMidiNote);
+
+        if (octaveDifference > 6) {
+            return adjustOctave(frequency / 2, rootFrequency);
+        } else if (octaveDifference < -6) {
+            return adjustOctave(frequency * 2, rootFrequency);
+        }
+
+        lastRootFrequency = frequency;
+        return frequency;
+    }
+
+    Object.keys(notes).forEach(id => {
+        const button = document.getElementById(id);
+        button.addEventListener('mousedown', () => playChord(getFrequencies(notes[id][0])));
+        button.addEventListener('mouseup', stopChord);
+        button.addEventListener('mouseleave', stopChord);
+    });
+</script>
+</body>
+</html>
